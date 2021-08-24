@@ -2,14 +2,13 @@ from typing import ItemsView
 import os
 import pymysql
 import json
+from datetime import date
+from datetime import datetime
 
 DB_HOST='remotemysql.com'
-DB_USER='utF3rRuKY4'
-DB_PASS='MuJSiLkxOz'
-DB_NAME='utF3rRuKY4'
-  
-
-
+DB_USER='MAHdOtn0ov'
+DB_PASS='pmO6HIjNSu'
+DB_NAME='MAHdOtn0ov' 
 class koha():
 
     def run_query(self,query ): 
@@ -21,76 +20,167 @@ class koha():
         else: 
             conn.commit()              # Hacer efectiva la escritura de datos 
             data = None       
-        cursor.close()                 # Cerrar el cursor 
-        conn.close()                   # Cerrar la conexión 
+        cursor.close()   
+        conn.close()   
         return data
 
-
-    def insertJson(self, data: json):
+    
+    def insertJson(self, data ):
+        query = "SELECT max(biblionumber) FROM biblio" 
+        result = self.run_query(query) 
+        resultado = result[0][0] + 1
         biblio = data['biblio']
         biblioItems = data['biblioItems']
         items = data['items']
+        campo = data['campos'] 
+        biblio['biblionumber'] = resultado
+        
+        codigoCatalogador = campo['codigoCatalogador']
+        horaCampoCinco = campo['horaCampoCinco'] #agregar al formularioo, pero es dato quemado
+        tema650 = campo['tema650'] # m
+        biblionumber = str(resultado) # aqui debbe ir el biblionumber
+        numeroClasificacion =  campo['numeroClasificacion'] # campo 084 numero para referenciarlo
+        numeroClasificacionOpcional =  campo['numeroClasificacionOpcional']# campo 090 numero para referenciarlo opcional, se pone mas que todo en los archivos sonoros
+        lugarProduccion = campo['lugarProduccion'] # campo 264a
+        entidadProductora =  campo['entidadProductora'] # campo 264b
+        anoProduccion = campo['anoProduccion'] # campo 264c
+        fechaAccion = campo['fechaAccion']
+        palabraClave = campo['palabraClave']
+        textoEnlace = campo['textoEnlace']
+        urlArchivoa = campo['urlArchivoa']
+        encabezamiento =  campo['encabezamiento']
+        descripcionFisicaFijo = campo['descripcionFisicaFijo']
+        longitudFija = campo['longitudFija']
+        autorPersona = campo['autorPersona']
+        autorEntidad = campo['autorEntidad']
+        autorEvento = campo['autorEvento']
+        tituloUniforme = campo['tituloUniforme']
+        titulo = biblio['title']
+        autorTitulo = campo['autorTitulo'] # campo 245
+        duracion = campo['duracion']
+        tipoContenidoA = campo['tipoContenidoA']
+        tipoContenidoB = campo['tipoContenidoB']
+        tipoMedioA = campo['tipoMedioA']
+        tipoMedioB = campo['tipoMedioB']
+        coleccion = campo['coleccion']
+        notaGeneral = campo['notaGeneral']
+        notaContenido = biblio['notes']  # aqui va el resumen
+        notaCreditos = campo['notaCreditos']
+        notaElenco = campo['notaElenco']
+        descripcionFisicaA = campo['descripcionFisicaA']
+        descripcionFisicaB = campo['descripcionFisicaB']
+        descripcionFisicaC = campo['descripcionFisicaC']
+        tipoItem = campo['tipoItem']
+        urlArchivo = campo['urlArchivo'] # campo 856 url
+        tipoAoV = campo['tipoAoV']  #toca investigar pero la otra opcion es video
+        campoSeiscientos = campo['campoSeiscientos']
+        caracteristicaseis = campo['caracteristicaseis']
+        genero = campo['genero']
+        forma = campo['forma']
+
+
+        xml = """<?xml version="1.0" encoding="UTF-8"?>\n<record\n    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n    xsi:schemaLocation="http://www.loc.gov/MARC21/slim http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd"\n    xmlns="http://www.loc.gov/MARC21/slim">\n\n  
+        <leader>"""+encabezamiento+"""</leader>\n  
+        <datafield tag="999" ind1=" " ind2=" ">\n    <subfield code="c">"""+biblionumber+"""</subfield>\n    <subfield code="d">"""+biblionumber+"""</subfield>\n  </datafield>\n
+        <controlfield tag="001"></controlfield>\n  
+        <controlfield tag="003">CO-BoRTV</controlfield>\n  
+        <controlfield tag="005">"""+horaCampoCinco+"""</controlfield>\n
+        <controlfield tag="006">"""+caracteristicaseis+"""</controlfield>\n
+        <controlfield tag="007">"""+descripcionFisicaFijo+"""</controlfield>\n  
+        <controlfield tag="008">"""+longitudFija+"""</controlfield>\n  
+        <datafield tag="010" ind1=" " ind2=" ">\n    <subfield code="a">CO-BoRTV</subfield>\n  </datafield>\n  
+        <datafield tag="040" ind1=" " ind2=" ">\n    <subfield code="a">RTVC-FPFC</subfield>\n    <subfield code="b">spa</subfield>\n  </datafield>\n 
+        <datafield tag="041" ind1=" " ind2=" ">\n    <subfield code="a">spa</subfield>\n  </datafield>\n   
+        <datafield tag="084" ind1=" " ind2=" ">\n    <subfield code="a">"""+numeroClasificacion+"""</subfield>\n  </datafield>\n  
+        <datafield tag="090" ind1=" " ind2=" ">\n    <subfield code="a">"""+numeroClasificacionOpcional+"""</subfield>\n  </datafield>\n  
+        <datafield tag="100" ind1="1" ind2=" ">\n    <subfield code="a">"""+autorPersona+"""</subfield>\n    <subfield code="d">Nota: escrito por carlos que aqui va :fecha de la forma 1927-2011</subfield>\n    <subfield code="e">locutora</subfield>\n  </datafield>\n  
+        <datafield tag="243" ind1="1" ind2="0">\n    <subfield code="a">"""+tituloUniforme+"""</subfield>\n  </datafield>\n  
+        <datafield tag="245" ind1="1" ind2="0">\n    <subfield code="a">"""+titulo+"""</subfield>\n    <subfield code="c">"""+autorTitulo+"""</subfield>\n  </datafield>\n  
+        <datafield tag="264" ind1=" " ind2="0">\n    <subfield code="a">"""+lugarProduccion+"""</subfield>\n    <subfield code="b">"""+entidadProductora+"""</subfield>\n    <subfield code="c">"""+anoProduccion+"""</subfield>\n  </datafield>\n  
+        <datafield tag="300" ind1=" " ind2=" ">\n    <subfield code="a">"""+descripcionFisicaA+"""</subfield>\n    <subfield code="b">"""+descripcionFisicaB+"""</subfield>\n    <subfield code="c">"""+descripcionFisicaC+"""</subfield>\n      </datafield>\n  
+        <datafield tag="306" ind1=" " ind2=" ">\n    <subfield code="a">"""+duracion+"""</subfield>\n  </datafield>\n  
+        <datafield tag="336" ind1=" " ind2=" ">\n    <subfield code="a">"""+tipoContenidoA+"""</subfield>\n    <subfield code="b">"""+tipoContenidoB+"""</subfield>\n    <subfield code="2">rdacontenido</subfield>\n  </datafield>\n  
+        <datafield tag="337" ind1=" " ind2=" ">\n    <subfield code="a">"""+tipoMedioA+"""</subfield>\n    <subfield code="b">"""+tipoMedioB+"""</subfield>\n  <subfield code="2">rdamedio</subfield>\n  </datafield>\n  
+        <datafield tag="338" ind1=" " ind2=" ">\n    <subfield code="a">recurso en línea</subfield>\n    <subfield code="b">cr</subfield>\n    <subfield code="2">rdasoporte</subfield>\n  </datafield>\n  
+        <datafield tag="490" ind1="0" ind2=" ">\n    <subfield code="a">"""+coleccion+"""</subfield>\n  </datafield>\n  
+        <datafield tag="500" ind1="0" ind2=" ">\n    <subfield code="a">"""+notaGeneral+"""</subfield>\n  </datafield>\n  
+        <datafield tag="505" ind1="0" ind2=" ">\n    <subfield code="a">"""+notaContenido+"""</subfield>\n  </datafield>\n  
+        <datafield tag="506" ind1="1" ind2=" ">\n    <subfield code="a">Sin especificar</subfield>\n    <subfield code="f">Acceso online con previa autorización</subfield>\n  </datafield>\n  
+        <datafield tag="508" ind1=" " ind2=" ">\n    <subfield code="a">"""+notaCreditos+"""</subfield>\n  </datafield>\n  
+        <datafield tag="511" ind1="0" ind2=" ">\n    <subfield code="a">"""+notaElenco+"""</subfield>\n  </datafield>\n  
+        <datafield tag="583" ind1=" " ind2=" ">\n    <subfield code="a">Catalogacion</subfield>\n    <subfield code="c">"""+fechaAccion+"""</subfield>\n    <subfield code="i">Se realiza el registro mínimo de metadatos de identificación y contenido del documento en el software bibliográfico Koha, estructurado bajo el formato MARC21, utilizando las normas AACR2, IASA, RDA y en concordancia con el manual interno de catalogación de Señal Memoria, establecido por el área de Gestión de Colecciones.</subfield>\n
+        """+campoSeiscientos+"""
+        <datafield tag="610" ind1=" " ind2=" ">\n    <subfield code="a"></subfield>\n    <subfield code="2"></subfield>\n  </datafield>\n    
+        <subfield code="l">El archivo esta procesable</subfield>\n    <subfield code="k">"""+codigoCatalogador+"""</subfield>\n  </datafield>\n  
+        <datafield tag="650" ind1=" " ind2="7">\n    <subfield code="a">"""+tema650+"""</subfield>\n    <subfield code=" "></subfield>\n  </datafield>\n  
+        <datafield tag="653" ind1="0" ind2="2">\n    <subfield code="a">"""+palabraClave+"""</subfield>\n  </datafield>\n  
+        <datafield tag="655" ind1=" " ind2="7">\n    <subfield code="2">Tesauro de Señal Memoria, RTVC</subfield>\n    <subfield code="a">"""+genero+"""</subfield>\n    <subfield code="v">"""+forma+"""</subfield>\n  </datafield>\n  
+        <datafield tag="700" ind1="1" ind2=" ">\n    <subfield code="a"></subfield>\n    <subfield code="d"></subfield>\n    <subfield code="e"></subfield>\n  </datafield>\n
+        <datafield tag="710" ind1="2" ind2=" ">\n    <subfield code="a">"""+autorEntidad+"""</subfield>\n    <subfield code="e"></subfield>\n  </datafield>\n
+        <datafield tag="810" ind1="2" ind2=" ">\n    <subfield code="a"></subfield>\n  </datafield>\n
+        <datafield tag="856" ind1="4" ind2="1">\n    <subfield code="u">"""+urlArchivo+"""</subfield>\n    <subfield code="y">"""+textoEnlace+"""</subfield>\n    <subfield code="a">"""+urlArchivoa+"""</subfield>\n    <subfield code="q">"""+tipoAoV+"""</subfield>\n  </datafield>\n
+        <datafield tag="852" ind1="8" ind2="2">\n    <subfield code="a"></subfield>\n    <subfield code="h"></subfield>\n  </datafield>\n
+        <datafield tag="856" ind1="4" ind2="1">\n    <subfield code="u"></subfield>\n    <subfield code="y"></subfield>\n    <subfield code="a"></subfield>\n    <subfield code="q"></subfield>\n  </datafield>\n  
+        <datafield tag="942" ind1=" " ind2=" ">\n    <subfield code="2">z</subfield>\n    <subfield code="c">"""+tipoItem+"""</subfield>\n  </datafield>\n</record>
+        """
+
+        query1 = """INSERT INTO `biblio` (`biblionumber`, `frameworkcode`, `author`, `title`, `unititle`, `notes`, 
+        `serial`, `seriestitle`, `copyrightdate`, `timestamp`, `datecreated`, `abstract`)
+        VALUES ( %s, '%s', '%s', '%s', '%s', '%s', %i , '%s', %i, CURRENT_TIMESTAMP, '%s', '%s');
+        """ % (biblio['biblionumber'], biblio['frameworkcode'],biblio['author'],biblio['title'], biblio['unititle'], biblio['notes'],
+        biblio['serial'],biblio['seriestitle'],biblio['copyrightdate'], biblio['datecreated'], biblio['abstract'] )
+
+        query2 = """INSERT INTO `biblioitems` (`biblioitemnumber`, `biblionumber`, `volume`, `number`, `itemtype`, 
+        `isbn`, `issn`, `ean`, `publicationyear`, `publishercode`, `volumedate`, `volumedesc`, `collectiontitle`, `collectionissn`, `collectionvolume`, `editionstatement`, `editionresponsibility`, 
+        `timestamp`,`illus`, `pages`, `notes`, `size`, `place`, `lccn`, `url`, `cn_source`, `cn_class`, `cn_item`, `cn_suffix`, `cn_sort`, `agerestriction`, `totalissues`,`marcxml`) 
+        VALUES (%i, %i,'%s','%s','%s',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+        CURRENT_TIMESTAMP,'%s','%s',NULL,'%s',NULL,NULL,'%s','%s', NULL, NULL, NULL ,'%s', NULL,NULL,'%s');
+        """ % (resultado,resultado,biblioItems['volume'],biblioItems['number'],biblioItems['itemtype'],
+        biblioItems['illus'],biblioItems['pages'],biblioItems['size'],biblioItems['url'],biblioItems['cn_source'],biblioItems['cn_sort'], xml)
+
+
+        query3 = """ INSERT INTO `items` (`itemnumber`, `biblionumber`, `biblioitemnumber`, `barcode`, `dateaccessioned`, `booksellerid`, `homebranch`, `price`, `replacementprice`, `replacementpricedate`, 
+        `datelastborrowed`, `datelastseen`, `stack`, `notforloan`, `damaged`, `itemlost`, `itemlost_on`, `withdrawn`, `withdrawn_on`, `itemcallnumber`, 
+        `coded_location_qualifier`, `issues`, `renewals`, `reserves`, `restricted`, `itemnotes`, `itemnotes_nonpublic`, `holdingbranch`, `paidfor`, `timestamp`, 
+        `location`, `permanent_location`, `onloan`, `cn_source`, `cn_sort`, `ccode`, `materials`, `uri`, `itype`, `more_subfields_xml`, 
+        `enumchron`, `copynumber`, `stocknumber`, `new_status`) 
+        VALUES (%i, %i, %i, NULL, '%s', '%s', NULL, NULL, NULL, '%s',
+        NULL, '%s', NULL, %i, %i, %i, NULL, %i , NULL,'%s',
+        NULL,NULL , NULL, NULL, NULL, NULL, NULL, NULL ,NULL,CURRENT_TIMESTAMP,
+        '%s', '%s', NULL, '%s', '%s', NULL, NULL, NULL,'%s',NULL,
+        NULL,NULL,NULL,NULL);
+        """ % (resultado,resultado, resultado, items['dateaccessioned'], items['booksellerid'],  items['replacementpricedate'], 
+        items['datelastseen'], items['notforloan'], items['damaged'], items['itemlost'], items['withdrawn'], items['itemcallnumber'],
+        items['location'], items['permanent_location'], items['cn_source'] , items['cn_sort'], items['itype']  
+        )
+
+
         queryInfo ="SELECT `biblionumber` FROM `biblio` WHERE 1"
         consulta = self.run_query(queryInfo)
         numbers =list(consulta)
         l= len(numbers) -1
-        noEsta= True
+        esta= True
         while l >= 0:
             if biblio['biblionumber'] in list(numbers[l]):
-                noEsta = False
+                esta = False
             l= l-1
-        if noEsta:
-            query1 = """INSERT INTO `biblio` (`biblionumber`, `frameworkcode`, `author`, `title`, `unititle`, `notes`, 
-            `serial`, `seriestitle`, `copyrightdate`, `timestamp`, `datecreated`, `abstract`)
-            VALUES ( %i, '%s', '%s', '%s', '%s', '%s', %i , '%s', %i, '%s', '%s', '%s');
-            """ % (biblio['biblionumber'], biblio['frameworkcode'],biblio['author'],biblio['title'], biblio['unititle'], biblio['notes'],
-            biblio['serial'],biblio['seriestitle'],biblio['copyrightdate'],biblio['timestamp'], biblio['datecreated'], biblio['abstract'] )
-
-            query2 = """INSERT INTO `biblioitems` (`biblioitemnumber`, `biblionumber`, `volume`, `number`, `itemtype`, `isbn`, `issn`, `ean`, `publicationyear`, `publishercode`, 
-            `volumedate`, `volumedesc`, `collectiontitle`, `collectionissn`, `collectionvolume`, `editionstatement`, `editionresponsibility`, `timestamp`, `illus`, `pages`, 
-            `notes`, `size`, `place`, `lccn`, `marc`, `url`, `cn_source`, `cn_class`, `cn_item`, `cn_suffix`, 
-            `cn_sort`, `agerestriction`, `totalissues`, `marcxml`)       
-            VALUES (%i, %i,'%s','%s','%s','%s','%s','%s','%s','%s',
-            '%s','%s','%s','%s','%s','%s','%s','%s','%s','%s',
-            '%s','%s','%s','%s','%s','%s','%s','%s','%s','%s',
-            '%s', '%s', %i, %s);
-            """ % (biblioItems['biblioitemnumber'], biblioItems['biblionumber'],biblioItems['volume'],biblioItems['number'],biblioItems['itemtype'],biblioItems['isbn'],biblioItems['issn'],biblioItems['ean'],biblioItems['publicationyear'],biblioItems['publishercode'],
-            biblioItems['volumedate'],biblioItems['volumedesc'],biblioItems['collectiontitle'],biblioItems['collectionissn'],biblioItems['collectionvolume'], biblioItems['editionstatement'],biblioItems['editionresponsibility'],biblioItems['timestamp'], biblioItems['illus'],biblioItems['pages'],
-            biblioItems['notes'],biblioItems['size'],biblioItems['place'],biblioItems['lccn'], biblioItems['marc'], biblioItems['url'],biblioItems['cn_source'],biblioItems['cn_class'],biblioItems['cn_item'],biblioItems['cn_suffix'],
-            biblioItems['cn_sort'],biblioItems['agerestriction'],biblioItems['totalissues'],biblioItems['marcxml'] )
-
-            query3 = """ INSERT INTO `items` (`itemnumber`, `biblionumber`, `biblioitemnumber`, `barcode`, `dateaccessioned`, `booksellerid`, `homebranch`, `price`, `replacementprice`, `replacementpricedate`, 
-            `datelastborrowed`, `datelastseen`, `stack`, `notforloan`, `damaged`, `itemlost`, `itemlost_on`, `withdrawn`, `withdrawn_on`, `itemcallnumber`, 
-            `coded_location_qualifier`, `issues`, `renewals`, `reserves`, `restricted`, `itemnotes`, `itemnotes_nonpublic`, `holdingbranch`, `paidfor`, `timestamp`, 
-            `location`, `permanent_location`, `onloan`, `cn_source`, `cn_sort`, `ccode`, `materials`, `uri`, `itype`, `more_subfields_xml`, 
-            `enumchron`, `copynumber`, `stocknumber`, `new_status`) 
-            VALUES (%i, %i, %i, '%s', '%s', '%s', '%s', %i, %i, '%s',
-            '%s', '%s', %i, %i, %i, %i, '%s', %i,'%s','%s',
-            '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s','%s',
-            '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s','%s',
-            '%s','%s', '%s','%s');
-            """ % (items['itemnumber'], items['biblionumber'],items['biblioitemnumber'],items['barcode'],items['dateaccessioned'], items['booksellerid'], items['homebranch'], items['price'], items['replacementprice'], items['replacementpricedate'], 
-            items['datelastborrowed'], items['datelastseen'], items['stack'] , items['notforloan'], items['damaged'], items['itemlost'] , items['itemlost_on'], items['withdrawn'], items['withdrawn_on'], items['itemcallnumber'],
-            items['coded_location_qualifier'], items['issues'] ,    items['renewals'], items['reserves'], items['restricted'], items['itemnotes'], items['itemnotes_nonpublic'], items['holdingbranch'],items['paidfor'], items['timestamp'], 
-            items['location'], items['permanent_location'], items['onloan'], items['cn_source'] , items['cn_sort'],  items['ccode'],  items['materials'], items['uri'], items['itype'], items['more_subfields_xml'], 
-            items['enumchron'], items['copynumber'],items['stocknumber'], items['new_status'] )
-
+        if esta:
             self.run_query(query1)
             self.run_query(query2)
             self.run_query(query3)
-
-            proces = {"proceso":"la ficha a sido agregaada correctamente"}
+            proces = {"se agrego la ficha":resultado}
             return proces
         else:
             res = {"error":"el id de la ficha ya existe","codigo":403,"numero id de la ficha a insertar": biblio['biblionumber']}
             return res
+
         
     #---------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------
 
 
-    def getJson(self, miniJson : json):
+    def getJson(self, miniJson):
         num= miniJson['numero']
         queryInfo ="SELECT `biblionumber` FROM `biblio` WHERE 1"
         consulta = self.run_query(queryInfo)
@@ -214,182 +304,238 @@ class koha():
             res = {"error":"el numero del id de la ficha buscada no esta","codigo":403,"numero Buscado ":num}
             return res
 
-#--------------------------------------------------------------------
-#--------------------------------------------------------------------
+
+
+#----------------------------------------------------------------------------
+#----------------------------------
+#----------------------------------------------------------------------
+    def actualizar(self,datosActualizar):
+        for key, value in datosActualizar.items():
+            if key == "biblionumber":
+                biblionumber = value
+        try:
+            stringXml = self.run_query('SELECT `marcxml` FROM `biblioitems` WHERE `biblioitems`.`biblionumber` = '+biblionumber)
+        except:
+            return {"error":"debe diligenciar el parametro de biblionumber"}
+        try:
+            xml = stringXml[0][0]
+        except:
+            return {"error":"el campo no existe, el biblionumber esta fuera de rango"}
+        try:
+            result = xml.find('<leader>')
+            nuevo = xml[result:]
+            result2 = nuevo.find('</leader>')
+            for key, value in datosActualizar.items():
+                if key == "encabezamiento":
+                    nuevoXml = xml[0:result]+'<leader>'+ value +xml[result+result2:]
+                    xml = nuevoXml  
+        except:
+            pass
+        try:
+            result = xml.find('tag="006">')
+            nuevo = xml[result:]
+            result2 = nuevo.find('</')
+            for key, value in datosActualizar.items():
+                if key == "caracteristicaseis":
+                    nuevoXml = xml[0:result]+'tag="006">'+ value +xml[result+result2:]
+                    xml = nuevoXml  
+        except:
+            pass
+        try:
+            result = xml.find('tag="007">')
+            nuevo = xml[result:]
+            result2 = nuevo.find('<')
+            for key, value in datosActualizar.items():
+                if key == "descripcionFisicaFijo":
+                    nuevoXml = xml[0:result]+'tag="007">'+ value +xml[result+result2:]
+                    xml = nuevoXml  
+        except:
+            pass
+        try:
+            result = xml.find('tag="008">')
+            nuevo = xml[result:]
+            result2 = nuevo.find('<')
+            for key, value in datosActualizar.items():
+                if key == "longitudFija":
+                    nuevoXml = xml[0:result]+'tag="008">'+ value +xml[result+result2:]
+                    xml = nuevoXml
+        except:
+            pass
+        try:
+            result = xml.find('tag="084"')
+            nuevo = xml[result:]
+            result2 = nuevo.find('</subfield>')
+            for key, value in datosActualizar.items():
+                if key == "numeroClasificacion":
+                    nuevoXml = xml[0:result]+'tag="084" ind1=" " ind2=" ">\n    <subfield code="a">'+ value +xml[result+result2:]
+                    xml = nuevoXml  
+        except:
+            pass
+        try:
+            result = xml.find('tag="243"')
+            nuevo = xml[result:]
+            result2 = nuevo.find('</subfield>')
+            for key, value in datosActualizar.items():
+                if key == "tituloUniforme":
+                    nuevoXml = xml[0:result]+'tag="243" ind1="1" ind2="0">\n    <subfield code="a">'+ value +xml[result+result2:]
+                    xml = nuevoXml  
+        except:
+            pass  
+        try:
+            result = xml.find('tag="245"')
+            nuevo = xml[result:]
+            result2 = nuevo.find('</subfield>')
+            for key, value in datosActualizar.items():
+                if key == "title":
+                    nuevoXml = xml[0:result]+'tag="245" ind1="1" ind2="0">\n    <subfield code="a">'+ value +xml[result+result2:]
+                    xml = nuevoXml  
+        except:
+            pass
+        try:
+            result = xml.find('tag="264"')
+            nuevo = xml[result:]
+            result2 = nuevo.find('</subfield>')
+            for key, value in datosActualizar.items():
+                if key == "lugarProduccion":
+                    nuevoXml = xml[0:result]+'tag="264" ind1=" " ind2="0">\n    <subfield code="a">'+ value +xml[result+result2:]
+                    xml = nuevoXml
+        except:
+            pass
+        try:
+            result = xml.find('tag="300"')
+            nuevo = xml[result:]
+            result2 = nuevo.find('</subfield>')
+            for key, value in datosActualizar.items():
+                if key == "descripcionFisica":
+                    nuevoXml = xml[0:result]+'tag="300" ind1=" " ind2=" ">\n    <subfield code="a">'+ value +xml[result+result2:]
+                    xml = nuevoXml
+        except:
+            pass
+        try:
+            result = xml.find('tag="336"')
+            nuevo = xml[result:]
+            result2 = nuevo.find('</subfield>')
+            for key, value in datosActualizar.items():
+                if key == "tipoContenido":
+                    nuevoXml = xml[0:result]+'tag="336" ind1=" " ind2=" ">\n    <subfield code="a">'+ value +xml[result+result2:]
+                    xml = nuevoXml
+        except:
+            pass
+        try:
+            result = xml.find('tag="490"')
+            nuevo = xml[result:]
+            result2 = nuevo.find('</subfield>')
+            for key, value in datosActualizar.items():
+                if key == "coleccion":
+                    nuevoXml = xml[0:result]+'tag="490" ind1="0" ind2=" ">\n    <subfield code="a">'+ value +xml[result+result2:]
+                    xml = nuevoXml
+        except:
+            pass
+        try:
+            result = xml.find('tag="500"')
+            nuevo = xml[result:]
+            result2 = nuevo.find('</subfield>')
+            for key, value in datosActualizar.items():
+                if key == "notaGeneral":
+                    nuevoXml = xml[0:result]+'tag="500" ind1="0" ind2=" ">\n    <subfield code="a">'+ value +xml[result+result2:]
+                    xml = nuevoXml
+        except:
+            pass
+        try:
+            result = xml.find('tag="505"')
+            nuevo = xml[result:]
+            result2 = nuevo.find('</subfield>')
+            for key, value in datosActualizar.items():
+                if key == "notaContenido":
+                    nuevoXml = xml[0:result]+'tag="505" ind1="0" ind2=" ">\n    <subfield code="a">'+ value +xml[result+result2:]
+                    xml = nuevoXml
+        except:
+            pass
+        try:
+            result = xml.find('tag="508"')
+            nuevo = xml[result:]
+            result2 = nuevo.find('</subfield>')
+            for key, value in datosActualizar.items():
+                if key == "notaCreditos":
+                    nuevoXml = xml[0:result]+'tag="508" ind1=" " ind2=" ">\n    <subfield code="a">'+ value +xml[result+result2:]
+                    xml = nuevoXml
+        except:
+            pass
+        try:
+            result = xml.find('tag="511"')
+            nuevo = xml[result:]
+            result2 = nuevo.find('</subfield>')
+            for key, value in datosActualizar.items():
+                if key == "notaElenco":
+                    nuevoXml = xml[0:result]+'tag="511" ind1="0" ind2=" ">\n    <subfield code="a">'+ value +xml[result+result2:]
+                    xml = nuevoXml
+        except:
+            pass
+        try:
+            result = xml.find('tag="650"')
+            nuevo = xml[result:]
+            result2 = nuevo.find('</subfield>')
+            for key, value in datosActualizar.items():
+                if key == "tema650":
+                    nuevoXml = xml[0:result]+'tag="650" ind1=" " ind2="7">\n    <subfield code="a">'+ value +xml[result+result2:]
+                    xml = nuevoXml
+        except:
+            pass
+        try:
+            result = xml.find('tag="653"')
+            nuevo = xml[result:]
+            result2 = nuevo.find('</subfield>')
+            for key, value in datosActualizar.items():
+                if key == "palabraClave" :
+                    nuevoXml = xml[0:result]+'tag="653" ind1="0" ind2="2">\n    <subfield code="a">'+ value +xml[result+result2:]
+                    xml = nuevoXml
+        except:
+            pass
+        try:
+            result = xml.find('<datafield tag="655" ind1=" " ind2="7">\n    <subfield code="2">Tesauro de Señal Memoria, RTVC</subfield>\n    <subfield code="a">')
+            nuevo = xml[result:]
+            result2 = nuevo.find('</subfield>')
+            for key, value in datosActualizar.items():
+                if key == "genero" :
+                    nuevoXml = xml[0:result]+'<datafield tag="655" ind1=" " ind2="7">\n    <subfield code="2">Tesauro de Señal Memoria, RTVC</subfield>\n    <subfield code="a">'+ value +xml[result+result2:]
+                    xml = nuevoXml
+        except:
+            pass
+        try:
+            result = xml.find('tag="856"')
+            nuevo = xml[result:]
+            result2 = nuevo.find('</subfield>')
+            for key, value in datosActualizar.items():
+                if key == "urlArchivo" :
+                    nuevoXml = xml[0:result]+'tag="856" ind1="4" ind2="1">\n    <subfield code="u">'+ value +xml[result+result2:]
+                    xml = nuevoXml
+        except:
+            pass
+
+        query = ""
+
+        for key, value in datosActualizar.items():
+            queryEnviar = query
+            queryEnviar = "UPDATE `biblio` SET "
+            queryEnviar += "`{}`='{}'".format(key, value)
+            queryEnviar += " WHERE `biblio`.`biblionumber` = "
+            queryEnviar += datosActualizar['biblionumber']
+            queryEnviar += ";"
+            try:
+                self.run_query(queryEnviar)
+            except:
+                pass
         
-    def updateJson(self, actual: json):
-        biblio = actual['biblio']
-        biblioItems = actual['biblioItems']
-        items = actual['items']
-        num = biblio['biblionumber']
-        queryInfo ="SELECT `biblionumber` FROM `biblio` WHERE 1"
-        consulta = self.run_query(queryInfo)
-        numbers =list(consulta)
-        l= len(numbers) -1
-        esta= False
-        while l >= 0:
-            if num in list(numbers[l]):
-                esta = True
-            l= l-1
-        if esta:
-            queryP = """
-            UPDATE `biblio`
-            SET `frameworkcode`= '%s' ,`author`='%s',`title`='%s' ,`unititle`= '%s',`notes`='%s',        
-            `serial`= %i,`seriestitle`='%s',`copyrightdate`= %i,`timestamp`= '%s',`datecreated`= '%s',`abstract`='%s'
-            WHERE `biblionumber`= %i
-            """% (    
-                biblio['frameworkcode'],biblio['author'],biblio['title'], biblio['unititle'], biblio['notes'],
-                biblio['serial'],biblio['seriestitle'],biblio['copyrightdate'],biblio['timestamp'], biblio['datecreated'], biblio['abstract'] ,
-                num
-            )
-            queryS = """
-            UPDATE `biblioitems`
-            SET `biblioitemnumber`=%i,`volume`='%s',`number`='%s',`itemtype`='%s',
-            `isbn`='%s',`issn`='%s',`ean`='%s',`publicationyear`='%s',`publishercode`='%s',
-            `volumedate`='%s',`volumedesc`='%s',`collectiontitle`='%s',`collectionissn`='%s',`collectionvolume`='%s',
-            `editionstatement`='%s',`editionresponsibility`='%s',`timestamp`='%s',`illus`='%s',`pages`='%s',
-            `notes`='%s',`size`='%s',`place`='%s',`lccn`= '%s',`marc`= '%s',
-            `url`= '%s',`cn_source`= '%s',`cn_class`= '%s',`cn_item`= '%s',`cn_suffix`= '%s',
-            `cn_sort`= '%s' ,`agerestriction`= '%s' ,`totalissues`=%i,`marcxml`= '%s'
-            WHERE `biblionumber`= %i
-            """% (biblioItems['biblioitemnumber'], biblioItems['volume'],biblioItems['number'],biblioItems['itemtype'],biblioItems['isbn'],biblioItems['issn'],biblioItems['ean'],biblioItems['publicationyear'],biblioItems['publishercode'],
-            biblioItems['volumedate'],biblioItems['volumedesc'],biblioItems['collectiontitle'],biblioItems['collectionissn'],biblioItems['collectionvolume'], biblioItems['editionstatement'],biblioItems['editionresponsibility'],biblioItems['timestamp'], biblioItems['illus'],biblioItems['pages'],
-            biblioItems['notes'],biblioItems['size'],biblioItems['place'],biblioItems['lccn'], biblioItems['marc'], biblioItems['url'],biblioItems['cn_source'],biblioItems['cn_class'],biblioItems['cn_item'],biblioItems['cn_suffix'],
-            biblioItems['cn_sort'],biblioItems['agerestriction'],biblioItems['totalissues'],biblioItems['marcxml'], num )
-
             
-            queryT = """
-            UPDATE `items` 
-            SET `itemnumber`= %i,`biblioitemnumber`= %i,`barcode`='%s',`dateaccessioned`='%s',
-            `booksellerid`='%s',`homebranch`='%s',`price`=%i,`replacementprice`=%i,`replacementpricedate`='%s',
-            `datelastborrowed`='%s',`datelastseen`='%s',`stack`=%i,`notforloan`=%i,`damaged`=%i,
-            `itemlost`= %i,`itemlost_on`='%s',`withdrawn`= %i,`withdrawn_on`='%s',`itemcallnumber`='%s',
-            `coded_location_qualifier`='%s',`issues`='%s',`renewals`='%s',`reserves`='%s',`restricted`='%s',
-            `itemnotes`='%s',`itemnotes_nonpublic`='%s',`holdingbranch`='%s',`paidfor`='%s',`timestamp`='%s',
-            `location`='%s',`permanent_location`='%s',`onloan`='%s',`cn_source`='%s',`cn_sort`='%s',
-            `ccode`='%s',`materials`='%s',`uri`='%s',`itype`='%s',`more_subfields_xml`='%s',
-            `enumchron`='%s',`copynumber`='%s',`stocknumber`='%s',`new_status`='%s' 
-            WHERE `biblionumber`= %i      
-            """ % (items['itemnumber'],items['biblioitemnumber'],items['barcode'],items['dateaccessioned'], items['booksellerid'], items['homebranch'], items['price'], items['replacementprice'], items['replacementpricedate'], 
-            items['datelastborrowed'], items['datelastseen'], items['stack'] , items['notforloan'], items['damaged'], items['itemlost'] , items['itemlost_on'], items['withdrawn'], items['withdrawn_on'], items['itemcallnumber'],
-            items['coded_location_qualifier'], items['issues'] ,    items['renewals'], items['reserves'], items['restricted'], items['itemnotes'], items['itemnotes_nonpublic'], items['holdingbranch'],items['paidfor'], items['timestamp'], 
-            items['location'], items['permanent_location'], items['onloan'], items['cn_source'] , items['cn_sort'],  items['ccode'],  items['materials'], items['uri'], items['itype'], items['more_subfields_xml'], 
-            items['enumchron'], items['copynumber'],items['stocknumber'], items['new_status'], num)
-
-            self.run_query(queryP)
-            self.run_query(queryS)
-            self.run_query(queryT)
-            return {"proceso":"informacion actualizada exitosamente"}
-        else:
-            res = {"error":"la ficha a actualizar no se encuenta anteriormente registrada","codigo":403,"numero id buscado":num}
-            return res
-            
-        
-    def crearTabla (self):
-        queryC = """
-        CREATE TABLE biblio (
-        biblionumber int NOT NULL,
-        frameworkcode varchar(255) NOT NULL,
-        author varchar(255) DEFAULT NULL,
-        title varchar(255) DEFAULT NULL,
-        unititle varchar(255) DEFAULT NULL,
-        notes varchar(255) DEFAULT NULL,
-        serial int DEFAULT NULL,
-        seriestitle varchar(255) DEFAULT NULL,
-        copyrightdate int(255) DEFAULT NULL,
-        timestamp varchar(255) DEFAULT NULL,
-        datecreated varchar(255) DEFAULT NULL,
-        abstract varchar(255) DEFAULT NULL
-        );
-
-        CREATE TABLE biblioitems (
-        biblioitemnumber int DEFAULT NULL,
-        biblionumber int DEFAULT NULL,
-        volume varchar(255) DEFAULT NULL,
-        number varchar(255) DEFAULT NULL,
-        itemtype varchar(255) DEFAULT NULL,
-        isbn varchar(255) DEFAULT NULL,
-        issn varchar(255) DEFAULT NULL,
-        ean varchar(255) DEFAULT NULL,
-        publicationyear varchar(255) DEFAULT NULL,
-        publishercode varchar(255) DEFAULT NULL,
-        volumedate varchar(255) DEFAULT NULL,
-        volumedesc varchar(255) DEFAULT NULL,
-        collectiontitle varchar(255) DEFAULT NULL,
-        collectionissn varchar(255) DEFAULT NULL,
-        collectionvolume varchar(255) DEFAULT NULL,
-        editionstatement varchar(255) DEFAULT NULL,
-        editionresponsibility varchar(255) DEFAULT NULL,
-        timestamp varchar(255) DEFAULT NULL,
-        illus varchar(255) DEFAULT NULL,
-        pages varchar(255) DEFAULT NULL,
-        notes varchar(255) DEFAULT NULL,
-        size varchar(255) DEFAULT NULL,
-        place varchar(255) DEFAULT NULL,
-        lccn varchar(255) DEFAULT NULL,
-        marc varchar(255) DEFAULT NULL,
-        url varchar(255) DEFAULT NULL,
-        cn_source varchar(255) DEFAULT NULL,
-        cn_class varchar(255) DEFAULT NULL,
-        cn_item varchar(255) DEFAULT NULL,
-        cn_suffix varchar(255) DEFAULT NULL,
-        cn_sort varchar(255) DEFAULT NULL,
-        agerestriction varchar(255) DEFAULT NULL,
-        totalissues int DEFAULT NULL,
-        marcxml varchar(255) DEFAULT NULL
-        );
-
-
-        CREATE TABLE items (
-        itemnumber int DEFAULT NULL,
-        biblionumber int DEFAULT NULL,
-        biblioitemnumber int DEFAULT NULL,
-        barcode varchar(255) DEFAULT NULL,
-        dateaccessioned varchar(255) DEFAULT NULL,
-        booksellerid varchar(255) DEFAULT NULL,
-        homebranch varchar(255) DEFAULT NULL,
-        price int DEFAULT NULL,
-        replacementprice int DEFAULT NULL,
-        replacementpricedate varchar(255) DEFAULT NULL,
-        datelastborrowed varchar(255) DEFAULT NULL,
-        datelastseen varchar(255) DEFAULT NULL,
-        stack int DEFAULT NULL,
-        notforloan int DEFAULT NULL,
-        damaged int DEFAULT NULL,
-        itemlost int DEFAULT NULL,
-        itemlost_on varchar(255) DEFAULT NULL,
-        withdrawn int DEFAULT NULL,
-        withdrawn_on varchar(255) DEFAULT NULL,
-        itemcallnumber varchar(255) DEFAULT NULL,
-        coded_location_qualifier varchar(255) DEFAULT NULL,
-        issues varchar(255) DEFAULT NULL,
-        renewals varchar(255) DEFAULT NULL,
-        reserves varchar(255) DEFAULT NULL,
-        restricted varchar(255) DEFAULT NULL,
-        itemnotes varchar(255) DEFAULT NULL,
-        itemnotes_nonpublic varchar(255) DEFAULT NULL,
-        holdingbranch varchar(255) DEFAULT NULL,
-        paidfor varchar(255) DEFAULT NULL,
-        timestamp varchar(255) DEFAULT NULL,
-        location varchar(255) DEFAULT NULL,
-        permanent_location varchar(255) DEFAULT NULL,
-        onloan varchar(255) DEFAULT NULL,
-        cn_source varchar(255) DEFAULT NULL,
-        cn_sort varchar(255) DEFAULT NULL,
-        ccode varchar(255) DEFAULT NULL,
-        materials varchar(255) DEFAULT NULL,
-        uri varchar(255) DEFAULT NULL,
-        itype varchar(255) DEFAULT NULL,
-        more_subfields_xml varchar(255) DEFAULT NULL,
-        enumchron varchar(255) DEFAULT NULL,
-        copynumber varchar(255) DEFAULT NULL,
-        stocknumber varchar(255) DEFAULT NULL,
-        new_status varchar(255) DEFAULT NULL
-        ) ; """
-        self.run_query(queryC)
-        print("listo")
-        return 0
-
-
-
-
+        for key, value in datosActualizar.items():
+            queryEnviar = query
+            queryEnviar = "UPDATE `biblioitems` SET `marcxml` = '"
+            queryEnviar += xml
+            queryEnviar += "' WHERE `biblioitems`.`biblionumber` = "
+            queryEnviar += datosActualizar['biblionumber']
+            queryEnviar += ";"
+            try:
+                self.run_query(queryEnviar)
+            except:
+                pass
+        return {"ficha actualizada": biblionumber} 
