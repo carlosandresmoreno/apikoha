@@ -5,20 +5,20 @@ import json
 from datetime import date
 from datetime import datetime
 
-DB_HOST='remotemysql.com'
-DB_USER='MAHdOtn0ov'
-DB_PASS='pmO6HIjNSu'
-DB_NAME='MAHdOtn0ov' 
+DB_HOST='remotemysql.com'  # por favor modifique aca ingeniero
+DB_USER='MAHdOtn0ov'       # por favor modifique aca ingeniero
+DB_PASS='pmO6HIjNSu'       # por favor modifique aca ingeniero
+DB_NAME='MAHdOtn0ov'       # por favor modifique aca ingeniero
 class koha():
 
     def run_query(self,query ): 
         conn = pymysql.connect(host= DB_HOST,user=  DB_USER, passwd= DB_PASS, db = DB_NAME) # Conectar a la base de datos 
-        cursor = conn.cursor()         # Crear un cursor
-        cursor.execute(query)          # Ejecutar una consulta
+        cursor = conn.cursor()        
+        cursor.execute(query)         
         if query.upper().startswith('SELECT'): 
-            data = cursor.fetchall()   # Traer los resultados de un select 
+            data = cursor.fetchall()   
         else: 
-            conn.commit()              # Hacer efectiva la escritura de datos 
+            conn.commit()              
             data = None       
         cursor.close()   
         conn.close()   
@@ -36,14 +36,14 @@ class koha():
         biblio['biblionumber'] = resultado
         
         codigoCatalogador = campo['codigoCatalogador']
-        horaCampoCinco = campo['horaCampoCinco'] #agregar al formularioo, pero es dato quemado
-        tema650 = campo['tema650'] # m
-        biblionumber = str(resultado) # aqui debbe ir el biblionumber
-        numeroClasificacion =  campo['numeroClasificacion'] # campo 084 numero para referenciarlo
-        numeroClasificacionOpcional =  campo['numeroClasificacionOpcional']# campo 090 numero para referenciarlo opcional, se pone mas que todo en los archivos sonoros
-        lugarProduccion = campo['lugarProduccion'] # campo 264a
-        entidadProductora =  campo['entidadProductora'] # campo 264b
-        anoProduccion = campo['anoProduccion'] # campo 264c
+        horaCampoCinco = campo['horaCampoCinco'] 
+        tema650 = campo['tema650'] 
+        biblionumber = str(resultado) 
+        numeroClasificacion =  campo['numeroClasificacion'] 
+        numeroClasificacionOpcional =  campo['numeroClasificacionOpcional']
+        lugarProduccion = campo['lugarProduccion'] 
+        entidadProductora =  campo['entidadProductora'] 
+        anoProduccion = campo['anoProduccion'] 
         fechaAccion = campo['fechaAccion']
         palabraClave = campo['palabraClave']
         textoEnlace = campo['textoEnlace']
@@ -56,7 +56,7 @@ class koha():
         autorEvento = campo['autorEvento']
         tituloUniforme = campo['tituloUniforme']
         titulo = biblio['title']
-        autorTitulo = campo['autorTitulo'] # campo 245
+        autorTitulo = campo['autorTitulo'] 
         duracion = campo['duracion']
         tipoContenidoA = campo['tipoContenidoA']
         tipoContenidoB = campo['tipoContenidoB']
@@ -64,20 +64,25 @@ class koha():
         tipoMedioB = campo['tipoMedioB']
         coleccion = campo['coleccion']
         notaGeneral = campo['notaGeneral']
-        notaContenido = biblio['notes']  # aqui va el resumen
+        notaContenido = biblio['notes']  
         notaCreditos = campo['notaCreditos']
         notaElenco = campo['notaElenco']
         descripcionFisicaA = campo['descripcionFisicaA']
         descripcionFisicaB = campo['descripcionFisicaB']
         descripcionFisicaC = campo['descripcionFisicaC']
         tipoItem = campo['tipoItem']
-        urlArchivo = campo['urlArchivo'] # campo 856 url
-        tipoAoV = campo['tipoAoV']  #toca investigar pero la otra opcion es video
+        urlArchivo = campo['urlArchivo'] 
+        tipoAoV = campo['tipoAoV'] 
         campoSeiscientos = campo['campoSeiscientos']
         caracteristicaseis = campo['caracteristicaseis']
         genero = campo['genero']
         forma = campo['forma']
-
+        autorPersonad = campo['autorPersonad']
+        autorPersonae = campo['autorPersonae']
+        autorEventod = campo['autorEventod']
+        autorEventoe = campo['autorEventoe']
+        autorEntidadd = campo['autorEntidadd']
+        autorEntidade = campo['autorEntidade']
 
         xml = """<?xml version="1.0" encoding="UTF-8"?>\n<record\n    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n    xsi:schemaLocation="http://www.loc.gov/MARC21/slim http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd"\n    xmlns="http://www.loc.gov/MARC21/slim">\n\n  
         <leader>"""+encabezamiento+"""</leader>\n  
@@ -89,11 +94,13 @@ class koha():
         <controlfield tag="007">"""+descripcionFisicaFijo+"""</controlfield>\n  
         <controlfield tag="008">"""+longitudFija+"""</controlfield>\n  
         <datafield tag="010" ind1=" " ind2=" ">\n    <subfield code="a">CO-BoRTV</subfield>\n  </datafield>\n  
-        <datafield tag="040" ind1=" " ind2=" ">\n    <subfield code="a">RTVC-FPFC</subfield>\n    <subfield code="b">spa</subfield>\n  </datafield>\n 
+        <datafield tag="040" ind1=" " ind2=" ">\n    <subfield code="a">CO-BoRTV</subfield>\n    <subfield code="b">spa</subfield>\n  </datafield>\n 
         <datafield tag="041" ind1=" " ind2=" ">\n    <subfield code="a">spa</subfield>\n  </datafield>\n   
         <datafield tag="084" ind1=" " ind2=" ">\n    <subfield code="a">"""+numeroClasificacion+"""</subfield>\n  </datafield>\n  
         <datafield tag="090" ind1=" " ind2=" ">\n    <subfield code="a">"""+numeroClasificacionOpcional+"""</subfield>\n  </datafield>\n  
-        <datafield tag="100" ind1="1" ind2=" ">\n    <subfield code="a">"""+autorPersona+"""</subfield>\n    <subfield code="d">Nota: escrito por carlos que aqui va :fecha de la forma 1927-2011</subfield>\n    <subfield code="e">locutora</subfield>\n  </datafield>\n  
+        <datafield tag="100" ind1="1" ind2=" ">\n    <subfield code="a">"""+autorPersona+"""</subfield>\n    <subfield code="d">"""+autorPersonad+"""</subfield>\n    <subfield code="e">"""+autorPersonae+"""</subfield>\n  </datafield>\n  
+        <datafield tag="110" ind1="2" ind2=" ">\n    <subfield code="a">"""+autorEntidad+"""</subfield>\n    <subfield code="d">"""+autorEntidadd+"""</subfield>\n    <subfield code="e">"""+autorEntidade+"""</subfield>\n  </datafield>\n  
+        <datafield tag="111" ind1="2" ind2=" ">\n    <subfield code="a">"""+autorEvento+"""</subfield>\n    <subfield code="d">"""+autorEventod+"""</subfield>\n    <subfield code="e">"""+autorEventoe+"""</subfield>\n  </datafield>\n  
         <datafield tag="243" ind1="1" ind2="0">\n    <subfield code="a">"""+tituloUniforme+"""</subfield>\n  </datafield>\n  
         <datafield tag="245" ind1="1" ind2="0">\n    <subfield code="a">"""+titulo+"""</subfield>\n    <subfield code="c">"""+autorTitulo+"""</subfield>\n  </datafield>\n  
         <datafield tag="264" ind1=" " ind2="0">\n    <subfield code="a">"""+lugarProduccion+"""</subfield>\n    <subfield code="b">"""+entidadProductora+"""</subfield>\n    <subfield code="c">"""+anoProduccion+"""</subfield>\n  </datafield>\n  
@@ -116,7 +123,7 @@ class koha():
         <datafield tag="653" ind1="0" ind2="2">\n    <subfield code="a">"""+palabraClave+"""</subfield>\n  </datafield>\n  
         <datafield tag="655" ind1=" " ind2="7">\n    <subfield code="2">Tesauro de Señal Memoria, RTVC</subfield>\n    <subfield code="a">"""+genero+"""</subfield>\n    <subfield code="v">"""+forma+"""</subfield>\n  </datafield>\n  
         <datafield tag="700" ind1="1" ind2=" ">\n    <subfield code="a"></subfield>\n    <subfield code="d"></subfield>\n    <subfield code="e"></subfield>\n  </datafield>\n
-        <datafield tag="710" ind1="2" ind2=" ">\n    <subfield code="a">"""+autorEntidad+"""</subfield>\n    <subfield code="e"></subfield>\n  </datafield>\n
+        <datafield tag="710" ind1="2" ind2=" ">\n    <subfield code="a"></subfield>\n    <subfield code="e"></subfield>\n  </datafield>\n
         <datafield tag="810" ind1="2" ind2=" ">\n    <subfield code="a"></subfield>\n  </datafield>\n
         <datafield tag="856" ind1="4" ind2="1">\n    <subfield code="u">"""+urlArchivo+"""</subfield>\n    <subfield code="y">"""+textoEnlace+"""</subfield>\n    <subfield code="a">"""+urlArchivoa+"""</subfield>\n    <subfield code="q">"""+tipoAoV+"""</subfield>\n  </datafield>\n
         <datafield tag="852" ind1="8" ind2="2">\n    <subfield code="a"></subfield>\n    <subfield code="h"></subfield>\n  </datafield>\n
@@ -539,3 +546,4 @@ class koha():
             except:
                 pass
         return {"ficha actualizada": biblionumber} 
+
